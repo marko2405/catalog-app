@@ -6,7 +6,7 @@ A full-stack application that combines product offers from three suppliers into 
 
 ## Links
 
-- [GitHub repository](https://github.com/YOUR_USERNAME/catalog-app)
+- [GitHub repository](https://github.com/marko2405/catalog-app.git)
 - Live application: add the Vercel URL after deployment.
 
 ## Features
