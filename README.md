@@ -26,7 +26,7 @@ Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, next-intl, fast-xml-parser 
 Requirements: Node.js 24, pnpm 11.15.1 and Git.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/catalog-app.git
+git clone https://github.com/marko2405/catalog-app.git
 cd catalog-app
 pnpm install --frozen-lockfile
 pnpm dev
