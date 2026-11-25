@@ -6,8 +6,8 @@ A full-stack application that combines product offers from three suppliers into 
 
 ## Links
 
-- [GitHub repository](https://github.com/marko2405/catalog-app.git)
-- [Live App]: (marko-catalog.vercel.app).
+- [GitHub Repository](https://github.com/marko2405/catalog-app)
+- [Live Application](https://marko-catalog.vercel.app)
 
 ## Features
 

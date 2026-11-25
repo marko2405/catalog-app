@@ -6,8 +6,8 @@ Full-stack aplikacija koja objedinjuje ponude tri dobavljača u jedinstveni kata
 
 ## Linkovi
 
-- [GitHub repozitorijum](https://github.com/marko2405/catalog-app.git)
-- [Online aplikacija]: (marko-catalog.vercel.app).
+- [GitHub repozitorijum](https://github.com/marko2405/catalog-app)
+- [Aplikacija uživo](https://marko-catalog.vercel.app)
 
 ## Funkcionalnosti
 
