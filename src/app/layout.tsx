@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getLocale, getTranslations } from "next-intl/server";
+import { LocaleProvider } from "@/components/catalog/locale-provider";
+import { resolveLocale } from "@/i18n/locales";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,18 +15,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Katalog proizvoda",
-  description: "Objedinjene ponude dobavljača",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Catalog");
+  return { title: t("title"), description: t("description") };
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = resolveLocale(await getLocale());
   return (
     <html
-      lang="sr-Latn"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><LocaleProvider initialLocale={locale}>{children}</LocaleProvider></body>
     </html>
   );
 }

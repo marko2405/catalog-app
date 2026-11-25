@@ -9,7 +9,7 @@
     "lint": "eslint",
     "verify:suppliers": "node --conditions=react-server --test scripts/verify-suppliers.ts",
     "verify:catalog": "node --conditions=react-server --test scripts/verify-catalog.ts",
-    "verify:frontend": "node --conditions=react-server --test scripts/verify-frontend.ts",
+    "verify:frontend": "node --conditions=react-server --test scripts/verify-frontend.ts && node --test scripts/verify-translations.ts",
     "generate:xml": "node --conditions=react-server scripts/generate-xml.ts"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "fast-xml-parser": "^5.12.1",
     "lucide-react": "^1.79.0",
     "next": "16.4.6",
+    "next-intl": "^4.16.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
