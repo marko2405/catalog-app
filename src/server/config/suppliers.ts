@@ -33,3 +33,5 @@ export function getPricingConfig(environment: Readonly<Record<string, string | u
     margins: { alfa: margin("alfa"), beta: margin("beta"), gama: margin("gama") },
   }
 }
+
+export type PricingConfig = ReturnType<typeof getPricingConfig>

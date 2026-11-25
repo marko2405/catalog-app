@@ -7,10 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "verify:suppliers": "node --conditions=react-server --test scripts/verify-suppliers.ts"
+    "verify:suppliers": "node --conditions=react-server --test scripts/verify-suppliers.ts",
+    "verify:catalog": "node --conditions=react-server --test scripts/verify-catalog.ts",
+    "generate:xml": "node --conditions=react-server scripts/generate-xml.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@next/env": "16.4.6",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "decimal.js": "^10.6.0",

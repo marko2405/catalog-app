@@ -89,6 +89,104 @@ outside Next.js, add `--env-file=.env.local` before the script path. Explicit
 without another runner dependency. Node may emit a harmless module-type detection
 warning because the existing package does not declare an ES module type.
 
+## Phase 2: pricing, catalog and XML export
+
+`loadCatalog()` in `src/server/services/catalog.service.ts` is the shared server
+pipeline for the generator and download endpoint. It returns serializable
+`products`, their corresponding `xml`, validation `issues`, and source/valid/
+rejected/duplicate/product counts. Only validated offers enter aggregation.
+The original supplier files remain unchanged.
+
+Pricing uses the configured fractional margin and VAT rate:
+
+- Net selling price = purchase price × (1 + supplier margin).
+- Selling price including VAT = net selling price × (1 + VAT rate).
+- Profit excluding VAT = net selling price − purchase price.
+
+VAT is assumed to be collected tax, not profit. `calculateProfit()` isolates this
+accounting assumption. All monetary calculations use decimal.js with a local
+precision sufficient for the input decimal lengths. There is no intermediate
+rounding. Final purchase, net selling, selling and profit values use two decimal
+places and `ROUND_HALF_UP`. The normalized source purchase price remains exact;
+the final product and XML serialize purchase price to two decimals as well.
+Profit is calculated from the unrounded net price, not the rounded display value.
+
+Offers are grouped by their string EAN and compared by final, two-decimal selling
+price using decimal.js. Equal prices prefer the lexicographically smaller supplier
+ID (`alfa`, then `beta`, then `gama`); equal prices from the same supplier retain
+the first source entry. Stock availability does not affect selection: zero-stock
+offers remain eligible. Every selected field and image comes from that offer;
+stock and images are never combined across suppliers. Products are sorted by EAN
+for deterministic output. The final model adds `sellingPrice` and `profit` as
+decimal strings, with no Decimal instances exposed to frontend consumers.
+
+Generate the physical repository-root export:
+
+```bash
+pnpm generate:xml
+```
+
+The command loads Next.js environment files through `@next/env`. By default it
+uses production precedence: existing process variables, `.env.production.local`,
+`.env.local`, `.env.production`, `.env`. Set `NODE_ENV=development` to use the
+development variants, matching `next dev`. `.env.local` works in both modes;
+Next.js's test-mode rules apply when `NODE_ENV=test`. Generation prints counts
+and rejection reasons and exits unsuccessfully on failures. `izvoz.xml` is not
+ignored by Git; regenerate it when source data or pricing changes.
+
+`GET /api/export` generates fresh XML in memory using the same pipeline. It returns
+`application/xml; charset=utf-8`, attachment filename `izvoz.xml`, and `no-store`.
+It uses the Node.js runtime and never reads the saved export or writes a runtime
+file. Unexpected failures return HTTP 500 with a generic JSON error; detailed
+errors are logged only on the server. The route's `outputFileTracingIncludes`
+explicitly includes `data/*.xml`; all three source files were verified in the
+production route trace. No deployment has been performed.
+
+XML uses UTF-8 and `proizvodi/proizvod`, with fields `ean`, `naziv`, `kategorija`,
+`brend`, `dobavljac` (official supplier name), `lager`, `nabavna_cena`,
+`prodajna_cena`, `zarada`, and `slike/slika`. Missing images produce `<slike/>`.
+XML serialization escapes special characters and preserves Unicode and EAN zeros.
+Rejected entries and validation metadata are excluded from the XML.
+
+### Phase 2 verification results
+
+With default configuration: 122 source offers, 118 valid, 4 rejected, 66 duplicate
+offers removed, and 52 unique products. Selected suppliers: Alfa 14, Beta 9,
+Gama 29. Nine selected products have zero stock. All four Phase 1 rejections remain
+explicitly recorded. Valid offers with the same EAN as rejected entries survive.
+
+Representative actual-source calculations (RSD):
+
+| Supplier / EAN | Purchase | Net selling | Selling incl. VAT | Profit excl. VAT |
+| --- | ---: | ---: | ---: | ---: |
+| Alfa / 8601005617419 | 2608.41 | 2738.83 | 3286.60 | 130.42 |
+| Beta / 8601001644129 | 9047.80 | 9681.15 | 11617.38 | 633.35 |
+| Gama / 8601000822061 | 1035.50 | 1035.50 | 1242.60 | 0.00 |
+
+```bash
+pnpm generate:xml
+pnpm verify:suppliers
+pnpm verify:catalog
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm build
+```
+
+The supplier suite (4 tests), catalog suite (6 tests), ESLint, TypeScript, and
+production build passed. Catalog checks cover reference formulas, overrides,
+rounding, minimum-price selection, deterministic ties, zero-stock selection,
+selected-field consistency, XML round trips, Unicode/entities, leading zeros,
+missing images, physical-file equality, and route success/error responses.
+Reference and edge-case tests use explicit configuration; file/API comparisons
+use the active environment. Generate the file before running catalog verification.
+
+The production endpoint was also verified over HTTP on port 3100: status 200,
+correct headers, and complete XML identical to the shared catalog and generated
+file. To repeat this check, start `pnpm start --port 3100` after building and set
+`EXPORT_TEST_URL=http://localhost:3100/api/export` when running `pnpm verify:catalog`.
+The server and verification process must use the same pricing environment.
+The build requires access to Google Fonts for the existing frontend font setup.
+
 ## Getting Started
 
 First, run the development server:

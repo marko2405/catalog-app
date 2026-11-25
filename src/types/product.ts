@@ -17,6 +17,12 @@ export interface SupplierOffer {
   images: string[]
 }
 
+/** Serializable final amounts in RSD, rounded to two decimal places. */
+export interface CatalogProduct extends SupplierOffer {
+  sellingPrice: string
+  profit: string
+}
+
 export interface ProductValidationIssue {
   supplierId: SupplierId
   /** One-based position in the source file. */

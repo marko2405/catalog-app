@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/api/export": ["./data/*.xml"],
+  },
   /* config options here */
   turbopack: {
     rules: {
