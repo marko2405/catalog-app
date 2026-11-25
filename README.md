@@ -187,6 +187,49 @@ file. To repeat this check, start `pnpm start --port 3100` after building and se
 The server and verification process must use the same pricing environment.
 The build requires access to Google Fonts for the existing frontend font setup.
 
+## Phase 3: product catalog interface
+
+The dynamic homepage loads `loadCatalog()` in a Server Component and passes only
+serializable products and supplier identities to `CatalogTable`. Prices,
+validation, aggregation and XML remain exclusively server-side. Both the homepage
+and export route include the source XML files in their production file traces.
+
+The Serbian Latin interface shows the eight required columns in order: Slika,
+Naziv, EAN, Dobavljač, Nabavna cena, Prodajna cena, Zarada, Lager. Decimal strings
+are formatted as `1.000,00 RSD` without numeric conversion or additional rounding.
+Zero-stock rows remain visible. Search matches partial names (case-insensitive)
+or EAN strings, trims surrounding whitespace, and combines with the winning
+supplier filter. Changing one control preserves the other; counts cover the full
+filtered catalog. No sorting or pagination is introduced.
+
+`Preuzmi XML` downloads the complete catalog from `/api/export`, independently of
+active filters. The first selected-offer image is shown in a fixed 48px thumbnail;
+the complete image collection remains in the data and export. Actual source URLs
+use `https://picsum.photos/seed/.../600/600`. Unoptimized Next.js images request
+these supplier-provided URLs directly, including their redirects. No replacement
+product imagery is invented. Missing or failed images use the same icon placeholder.
+External image availability is outside the application's control.
+
+Controls stack on narrow screens; the table scrolls horizontally without hiding
+columns. Labels, semantic table headings, focus styles, keyboard selection, live
+counts, an empty-result reset, and a generic loading-failure message with retry
+are provided. No artificial loading delays or extra JSON endpoint are used.
+
+Verification: `pnpm verify:frontend` passes two tests using the actual catalog and
+exact decimal formatting. The existing supplier (4) and catalog (6) tests,
+ESLint, TypeScript checking and production build also passed. Headless Chromium
+tested all 52 rows against server data, supplier counts 14/9/29, nine zero-stock
+rows, full/partial real names and EANs, case/whitespace handling, combined filters,
+state preservation, counts, empty/reset behavior, keyboard selection, and a real
+XML download containing all 52 products while filtered. Desktop and 390px mobile
+screenshots were inspected; the page had no horizontal overflow outside the
+scrolling table and no browser JavaScript errors. Image failures were deliberately
+simulated in the browser; missing-image rendering was checked separately at the
+component level because every current catalog product has images. A server with
+invalid pricing configuration verified the generic failure message without
+exposing the internal error. The browser tool was temporary and adds no project
+dependency. Internationalization and deployment remain unimplemented.
+
 ## Getting Started
 
 First, run the development server:

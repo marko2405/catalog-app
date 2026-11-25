@@ -9,6 +9,7 @@
     "lint": "eslint",
     "verify:suppliers": "node --conditions=react-server --test scripts/verify-suppliers.ts",
     "verify:catalog": "node --conditions=react-server --test scripts/verify-catalog.ts",
+    "verify:frontend": "node --conditions=react-server --test scripts/verify-frontend.ts",
     "generate:xml": "node --conditions=react-server scripts/generate-xml.ts"
   },
   "dependencies": {

@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
+    "/": ["./data/*.xml"],
     "/api/export": ["./data/*.xml"],
   },
   /* config options here */
